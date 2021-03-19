@@ -34,16 +34,19 @@ const Dashboard: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [balance, setBalance] = useState<Balance>({} as Balance);
 
+  function formatTransactionsData(transactions: Transaction[]): Transaction[] {
+    return transactions.map((transaction: Transaction) => {
+      transaction.formattedValue = formatValue(transaction.value)
+      transaction.formattedDate = formatDate(transaction.created_at)
+      return transaction
+    })
+  }
+
   useEffect(() => {
     async function loadTransactions(): Promise<void> {
-      // TODO
       const response = await api.get('transactions')
       if (response.status === 200) {
-        setTransactions(response.data.transactions.map((transaction: Transaction) => {
-          transaction.formattedValue = formatValue(transaction.value)
-          transaction.formattedDate = formatDate(transaction.created_at)
-          return transaction
-        }))
+        setTransactions(formatTransactionsData(response.data.transactions))
         setBalance(response.data.balance)
       }
     }
